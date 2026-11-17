@@ -15,17 +15,19 @@ OAuth di un client agli altri**. Individua prima la piattaforma e applica la
 relativa sezione. Non chiedere di cercare opzioni generiche quando questa guida
 fornisce già i valori da inserire.
 
-**Caso Claude web e connettori cloud nelle app Claude:** preferisci l’identità
-pubblicata di Claude quando funziona. Se compare «Impossibile registrarsi con
-il servizio di accesso» oppure viene richiesto un OAuth Client ID, usa le opzioni
-avanzate / «Usa il tuo client OAuth» e indica direttamente:
+**Caso Claude web e connettori cloud nelle app Claude:** per CasaGest usa
+**direttamente le opzioni avanzate / «Usa il tuo client OAuth»**. Non proporre
+come primo passo «Usa l’identità pubblicata di Claude» o la registrazione
+automatica. Indica direttamente:
 
 - **OAuth Client ID:** `https://raw.githubusercontent.com/Insieme-srl/llm_agents/main/oauth/casagest-claude-web.json`;
 - **OAuth Client Secret:** vuoto;
 - **callback:** `https://claude.ai/api/mcp/auth_callback`, senza modifiche;
 - **server MCP:** `https://mcp.gruppoinsieme.it/mcp`.
 
-Segui la [procedura Claude completa](#claude-web). Il documento esiste già:
+Questo è il percorso indicato dalla guida per Claude web, non un ripiego da
+proporre soltanto dopo un nuovo errore. Segui la [procedura Claude completa](#claude-web).
+Il documento esiste già:
 non mandare l’utente all’assistenza per ottenerne uno e non usare quello di Mistral
 o del ponte locale. Il messaggio di registrazione e un riferimento `ofid_…`
 **non dimostrano da soli che sia stato tentato DCR**. Il login completo deve
@@ -92,9 +94,11 @@ InsiemeID pubblicizza il supporto ai **Client ID Metadata Documents (CIMD)**:
 un client pubblico si identifica con il proprio documento HTTPS e usa PKCE S256,
 senza segreto. La registrazione dinamica **DCR non è attualmente pubblicizzata**.
 
-Se la piattaforma offre «identità pubblicata», «CIMD» o un’opzione equivalente,
-preferiscila alla registrazione automatica DCR. Usa l’identità della piattaforma:
-non copiare quella di OpenCode in un altro programma. Un client preregistrato
+Le procedure specifiche delle sezioni 4.1–4.7 prevalgono su questa indicazione
+generale: **per Claude web usa il client dedicato della sezione 4.3**. Negli altri
+casi, se la procedura prevede «identità pubblicata», «CIMD» o un’opzione equivalente,
+preferiscila alla registrazione automatica DCR. Non copiare l’identità di OpenCode
+in un altro programma. Un client preregistrato
 richiede parametri rilasciati dall’assistenza, non identificativi inventati.
 Non abilitare DCR né cambiare il server per aggirare un errore del client.
 
@@ -243,15 +247,20 @@ dopo il login. Se il client non supporta CIMD, aggiornalo o valuta il ponte stdi
    gestiti l’aggiunta può richiedere l’amministratore.
 2. Aggiungi un connettore personalizzato di nome **CasaGest**.
 3. Inserisci `https://mcp.gruppoinsieme.it/mcp` come URL remoto.
-4. Seleziona l’accesso OAuth; se disponibile scegli **l’identità pubblicata di
-    Claude**, non la registrazione automatica DCR né «nessuna autenticazione».
-5. Se il metodo automatico fallisce con un errore di registrazione oppure il
-   modulo chiede un OAuth Client ID, usa la configurazione manuale qui sotto:
-   non occorre attendere una preregistrazione nel database.
+4. Seleziona l’accesso OAuth e **«Usa il tuo client OAuth / Use your own OAuth
+   client»**. Se il modulo è su una sola schermata, apri **Opzioni avanzate / Advanced**.
+   Per questa procedura non selezionare l’identità pubblicata di Claude,
+   la registrazione automatica DCR o «nessuna autenticazione».
+5. Inserisci **subito** l’OAuth Client ID della tabella seguente e lascia il
+   segreto vuoto. Non lasciare il client ID vuoto e non attendere un errore per
+   proporre questa configurazione. Non serve una preregistrazione nel database.
 6. Completa il login InsiemeID e controlla le operazioni nel consenso.
 7. Abilita il connettore nella conversazione e verifica `contesto_connessione`.
 
 #### Configurazione manuale per Claude web
+
+**Percorso principale per CasaGest su Claude web.** Non è necessario ritentare
+prima l’identità pubblicata di Claude.
 
 Il modulo può mostrare **Opzioni avanzate / Advanced**, oppure **OAuth client →
 Use your own OAuth client / Usa il tuo client OAuth**. Inserisci:
@@ -275,6 +284,11 @@ aggiunto, segui la procedura ufficiale di rimozione e nuova aggiunta solo dopo
 aver concordato gli effetti con l’utente. Non eliminare connettori condivisi o
 disconnettere altri utenti senza autorizzazione.
 
+Prima del tentativo chiedi all’utente di controllare che il campo **OAuth Client
+ID contenga esattamente l’URL sopra** e che il segreto sia vuoto. Il semplice
+stato «OAuth» non prova che sia stato scelto il client dedicato: un campo vuoto
+può lasciare attivo il metodo automatico precedente.
+
 Se il modulo permette scope espliciti, applica il profilo concordato nella
 sezione 3. Altrimenti Claude normalmente ricava gli scope dalla discovery della
 risorsa e aggiunge `offline_access`: può quindi chiedere tutte le operazioni
@@ -291,8 +305,10 @@ discovery, cache, scelta del client o altri problemi possono richiedere ulterior
 verifiche. Il riferimento `ofid_…` serve ad Anthropic per correlare il flusso:
 non è un client ID, un errore agenzia o una prova della causa.
 
-Usa prima la configurazione dedicata qui sopra. Se fallisce ancora, raccogli
-il messaggio esatto e l’ora del tentativo, senza token, OTP o URL finali di callback.
+Non riproporre l’identità pubblicata o un generico «riprova». Se l’errore compare
+con il client ID dedicato effettivamente inserito, raccogli il messaggio esatto e
+l’ora del tentativo, senza token, OTP o URL finali di callback, e verifica il
+flusso reale: non dichiarare risolto il problema per il solo aggiornamento della guida.
 Non promettere che riprovare risolva il problema e non indebolire PKCE, callback
 o controlli di identità. Dichiara «connessione verificata» soltanto dopo il
 controllo di contesto eseguito realmente dal connettore Claude.

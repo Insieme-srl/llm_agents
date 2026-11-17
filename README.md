@@ -20,10 +20,11 @@ Il dominio senza `/mcp` è una pagina web, non l’endpoint del protocollo.
 Un prompt può guidare la configurazione, ma non aggiunge da solo un connettore
 a una piattaforma che richiede un intervento nelle impostazioni.
 
-**Claude web:** se il login automatico fallisce o richiede un OAuth Client ID,
-segui la [procedura dedicata](INSTRUCTIONS.md#claude-web), con il documento
-pubblico già disponibile e il segreto vuoto. Un errore di registrazione, da solo,
-non prova un problema DCR. Verifica poi il login dal connettore Claude.
+**Claude web:** usa direttamente **«Usa il tuo client OAuth» / Opzioni avanzate**
+e segui la [procedura dedicata](INSTRUCTIONS.md#claude-web), inserendo l’URL client
+indicato e lasciando vuoto il segreto. Non iniziare dall’identità pubblicata di
+Claude. Un errore di registrazione, da solo, non prova un problema DCR.
+Verifica poi il login dal connettore Claude.
 
 **Mistral web:** segui la [procedura dedicata](INSTRUCTIONS.md#mistral-web).
 Il campo «ID client» usa il documento pubblico già predisposto per questa
