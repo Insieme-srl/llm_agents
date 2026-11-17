@@ -15,6 +15,22 @@ OAuth di un client agli altri**. Individua prima la piattaforma e applica la
 relativa sezione. Non chiedere di cercare opzioni generiche quando questa guida
 fornisce già i valori da inserire.
 
+**Caso Claude web e connettori cloud nelle app Claude:** preferisci l’identità
+pubblicata di Claude quando funziona. Se compare «Impossibile registrarsi con
+il servizio di accesso» oppure viene richiesto un OAuth Client ID, usa le opzioni
+avanzate / «Usa il tuo client OAuth» e indica direttamente:
+
+- **OAuth Client ID:** `https://raw.githubusercontent.com/Insieme-srl/llm_agents/main/oauth/casagest-claude-web.json`;
+- **OAuth Client Secret:** vuoto;
+- **callback:** `https://claude.ai/api/mcp/auth_callback`, senza modifiche;
+- **server MCP:** `https://mcp.gruppoinsieme.it/mcp`.
+
+Segui la [procedura Claude completa](#claude-web). Il documento esiste già:
+non mandare l’utente all’assistenza per ottenerne uno e non usare quello di Mistral
+o del ponte locale. Il messaggio di registrazione e un riferimento `ofid_…`
+**non dimostrano da soli che sia stato tentato DCR**. Il login completo deve
+ancora essere verificato da Claude con `contesto_connessione`.
+
 **Caso Mistral sul web (Vibe / Le Chat):** se il modulo offre «Codice di
 autorizzazione — Credenziali personalizzate», indica direttamente:
 
@@ -219,16 +235,67 @@ il JSON mostra l’alternativa di progetto. Non creare definizioni concorrenti.
 Per il login usa **`/mcp`** e seleziona CasaGest. Verifica gli scope effettivi
 dopo il login. Se il client non supporta CIMD, aggiornalo o valuta il ponte stdio.
 
-### 4.3 Claude web e Claude Desktop: connettore remoto
+<a id="claude-web"></a>
+
+### 4.3 Claude web e app Claude: connettore remoto
 
 1. Apri **Customize / Personalizza → Connectors / Connettori**; per i workspace
    gestiti l’aggiunta può richiedere l’amministratore.
 2. Aggiungi un connettore personalizzato di nome **CasaGest**.
 3. Inserisci `https://mcp.gruppoinsieme.it/mcp` come URL remoto.
 4. Seleziona l’accesso OAuth; se disponibile scegli **l’identità pubblicata di
-   Claude**, non la registrazione automatica DCR né «nessuna autenticazione».
-5. Completa il login InsiemeID e controlla le operazioni nel consenso.
-6. Abilita il connettore nella conversazione e verifica il contesto.
+    Claude**, non la registrazione automatica DCR né «nessuna autenticazione».
+5. Se il metodo automatico fallisce con un errore di registrazione oppure il
+   modulo chiede un OAuth Client ID, usa la configurazione manuale qui sotto:
+   non occorre attendere una preregistrazione nel database.
+6. Completa il login InsiemeID e controlla le operazioni nel consenso.
+7. Abilita il connettore nella conversazione e verifica `contesto_connessione`.
+
+#### Configurazione manuale per Claude web
+
+Il modulo può mostrare **Opzioni avanzate / Advanced**, oppure **OAuth client →
+Use your own OAuth client / Usa il tuo client OAuth**. Inserisci:
+
+| Campo | Valore |
+|---|---|
+| URL server MCP | `https://mcp.gruppoinsieme.it/mcp` |
+| Autenticazione | OAuth / accesso con login, non anonimo |
+| OAuth Client ID | `https://raw.githubusercontent.com/Insieme-srl/llm_agents/main/oauth/casagest-claude-web.json` |
+| OAuth Client Secret | **Lascia vuoto**: è un client pubblico `none`. |
+| Callback, se mostrato | `https://claude.ai/api/mcp/auth_callback` |
+
+Il client ID è **l’intero URL**, non il contenuto JSON del file. È un documento
+pubblico predisposto da Insieme per questa integrazione, non l’identità ufficiale
+pubblicata da Anthropic. InsiemeID lo legge e verifica il callback esatto.
+Non usare il documento di Mistral o del ponte `mcp-remote`: i callback sono diversi.
+Questo documento non riguarda Claude Code, che usa callback locali e la sezione 4.2.
+
+Se l’interfaccia non permette di modificare l’autenticazione di un connettore già
+aggiunto, segui la procedura ufficiale di rimozione e nuova aggiunta solo dopo
+aver concordato gli effetti con l’utente. Non eliminare connettori condivisi o
+disconnettere altri utenti senza autorizzazione.
+
+Se il modulo permette scope espliciti, applica il profilo concordato nella
+sezione 3. Altrimenti Claude normalmente ricava gli scope dalla discovery della
+risorsa e aggiunge `offline_access`: può quindi chiedere tutte le operazioni
+CasaGest esposte. **Chiedere un profilo in chat non lo configura nel connettore.**
+Non dichiarare applicata la sola lettura o la sola creazione bozze senza aver
+verificato la richiesta effettiva. Se il consenso è più ampio del profilo scelto,
+non autorizzarlo alla cieca: chiarisci il limite e concorda come procedere.
+
+#### Errore di registrazione e riferimenti `ofid_`
+
+«Impossibile registrarsi con il servizio di accesso» è un errore del flusso
+Claude, non una diagnosi sufficiente di DCR. InsiemeID pubblicizza CIMD e `none`;
+discovery, cache, scelta del client o altri problemi possono richiedere ulteriori
+verifiche. Il riferimento `ofid_…` serve ad Anthropic per correlare il flusso:
+non è un client ID, un errore agenzia o una prova della causa.
+
+Usa prima la configurazione dedicata qui sopra. Se fallisce ancora, raccogli
+il messaggio esatto e l’ora del tentativo, senza token, OTP o URL finali di callback.
+Non promettere che riprovare risolva il problema e non indebolire PKCE, callback
+o controlli di identità. Dichiara «connessione verificata» soltanto dopo il
+controllo di contesto eseguito realmente dal connettore Claude.
 
 I connettori remoti di Claude sono collegati dal servizio cloud del fornitore,
 anche quando usi l’app Desktop. Non sono i server stdio presenti nel file locale.
@@ -461,6 +528,7 @@ di callback per risolvere un problema di rete.
 | `/mcp` restituisce 401 senza token | Comportamento previsto: completa OAuth dal client. |
 | Il client riceve HTML al posto di MCP | Controlla di avere configurato `/mcp`, non la pagina iniziale del dominio. |
 | `invalid_client`, registrazione DCR non disponibile | Verifica supporto CIMD del client o usa il ponte documentato; non inventare credenziali. |
+| Claude: «Impossibile registrarsi», con riferimento `ofid_…` | Non attribuire automaticamente la causa a DCR; usa il client pubblico dedicato della sezione 4.3 e verifica il risultato effettivo. |
 | Callback non consentito / non registrato | Confronta client e callback effettivi; non allargare gli indirizzi ammessi per tentativi. |
 | `AGENCY_LINK_MISSING` | Manca il collegamento agenzia richiesto: arresto e assistenza. |
 | `AGENCY_LINK_INVALID` | Collegamento non verificabile, malformato o ambiguo; arresto e assistenza, senza scegliere autonomamente un account. |
@@ -567,6 +635,8 @@ l’URL `client_id` del documento OAuth soltanto per fissare la versione della g
 - [OpenCode: configurazione](https://opencode.ai/docs/config)
 - [Claude Code: MCP](https://code.claude.com/docs/en/mcp)
 - [Claude: connettori remoti](https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)
+- [Claude: autenticazione, client pubblici e callback](https://claude.com/docs/connectors/building/authentication)
+- [Claude: opzioni avanzate dei connettori personalizzati](https://claude.com/docs/connectors/custom/add-unlisted)
 - [Cursor: MCP](https://cursor.com/docs/context/mcp)
 - [VS Code: aggiungere server MCP](https://code.visualstudio.com/docs/agent-customization/mcp-servers)
 - [VS Code: formati di configurazione](https://code.visualstudio.com/docs/agents/reference/mcp-configuration)
