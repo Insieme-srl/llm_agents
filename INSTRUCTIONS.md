@@ -55,6 +55,15 @@ non copiare quella di OpenCode in un altro programma. Un client preregistrato
 richiede parametri rilasciati dall’assistenza, non identificativi inventati.
 Non abilitare DCR né cambiare il server per aggirare un errore del client.
 
+Un campo manuale **ID client** può anche contenere l’URL di un documento CIMD
+dedicato a quell’integrazione: è InsiemeID che lo risolve e lo verifica.
+L’etichetta «credenziali personalizzate» non dimostra, da sola, che servano una
+riga preregistrata nel database o un segreto. Se non esiste un’opzione CIMD
+automatica, verifica questa possibilità senza riutilizzare l’identità di un altro
+client. La sezione Mistral descrive una configurazione dedicata, non un’identità
+ufficiale pubblicata da Mistral, e distingue la verifica del server dal collaudo
+end-to-end della piattaforma.
+
 ## 3. Scope: connessione e permessi CasaGest sono distinti
 
 | Operazione | Scope |
@@ -273,6 +282,57 @@ computer dell’utente tramite un prompt. Se mancano il connettore personalizzat
 il metodo OAuth richiesto o le autorizzazioni del workspace, serve un intervento
 nelle impostazioni o dell’amministratore, non un comando immaginario in chat.
 
+### 4.7 Mistral web (Vibe / Le Chat): credenziali personalizzate
+
+**Configurazione da collaudare end-to-end.** La documentazione Mistral descrive
+l’OAuth con DCR; alcune schermate offrono anche «Codice di autorizzazione —
+Credenziali personalizzate». Non concludere che la connessione sia impossibile
+solo perché manca una voce CIMD nel menu.
+
+Per il callback mostrato qui sotto, Insieme pubblica un documento CIMD dedicato
+al proprio connettore CasaGest su Mistral. Non è l’identità ufficiale di Mistral,
+non contiene segreti e non modifica i permessi dell’utente.
+
+Nel connettore MCP personalizzato usa:
+
+| Campo | Valore |
+|---|---|
+| URL server MCP | `https://mcp.gruppoinsieme.it/mcp` |
+| Flusso OAuth | **Codice di autorizzazione — Credenziali personalizzate** |
+| ID client | `https://raw.githubusercontent.com/Insieme-srl/llm_agents/main/oauth/casagest-mistral-web.json` |
+| Segreto client | **Lascia vuoto**: il documento identifica un client pubblico `none`. |
+| URI di reindirizzamento | `https://callback.mistral.ai/v1/integrations_auth/oauth2_callback` |
+| URL emittente | `https://id.gruppoinsieme.it` |
+| URL autorizzazione | `https://id.gruppoinsieme.it/oauth/authorize` |
+| URL token | `https://id.gruppoinsieme.it/oauth/token` |
+| Risorsa, se configurabile | `https://mcp.gruppoinsieme.it/mcp` |
+| Scope per il profilo consultazione e creazione bozze | `properties.read properties.create contacts.read offline_access` |
+
+L’URL va inserito interamente nel campo **ID client**: non è un URL di
+registrazione DCR. InsiemeID legge il documento e confronta esattamente il
+callback. Non usare il documento del ponte `mcp-remote`, che autorizza callback
+locali diversi. Non modificare il callback mostrato da Mistral per farlo coincidere.
+Il Debugger Studio può usare un altro callback: non è autorizzato da questo
+documento e richiede una configurazione dedicata, non tentativi con URL diversi.
+
+Procedi soltanto se l’interfaccia accetta il campo e consente il segreto vuoto.
+La creazione del connettore e il successivo login dell’utente sono passi distinti:
+un tool che restituisce il link alle impostazioni non ha ancora configurato il
+connettore né applicato il profilo di scope.
+
+Il client deve comunque inviare PKCE **S256**, lo scope concordato e il parametro
+OAuth `resource` corretto. Al token endpoint deve operare come client pubblico,
+senza un segreto o un’intestazione Basic inventati. Se Mistral non permette questi
+parametri o il login restituisce un errore, fermati e comunica il messaggio
+preciso, senza codici OAuth o token. Non disattivare i controlli InsiemeID.
+Un’eventuale preregistrazione va valutata sui requisiti effettivi osservati,
+non proposta come necessaria soltanto per il nome del menu.
+
+Dopo il login abilita il connettore nella conversazione Mistral e verifica
+`contesto_connessione`. Solo quel risultato conferma la connessione completa:
+l’accettazione del documento e del callback da parte di InsiemeID non prova
+ancora il comportamento OAuth di Mistral.
+
 ## 5. Client stdio: ponte locale `mcp-remote`
 
 Usalo soltanto se il client richiede un comando locale oppure il suo OAuth HTTP
@@ -463,7 +523,7 @@ Verificato sul servizio il 17 novembre 2026:
   dopo il consenso a `properties.create`.
 
 Questi risultati non certificano ogni account o gli altri client. Le procedure
-Claude, Cursor, VS Code, ChatGPT e del ponte sono documentate sulla base delle
+Claude, Cursor, VS Code, ChatGPT, Mistral e del ponte sono documentate sulla base delle
 fonti sotto e richiedono il proprio collaudo end-to-end. Non includere nei
 documenti pubblici i dati reali usati nelle prove.
 
@@ -482,5 +542,7 @@ l’URL `client_id` del documento OAuth soltanto per fissare la versione della g
 - [VS Code: aggiungere server MCP](https://code.visualstudio.com/docs/agent-customization/mcp-servers)
 - [VS Code: formati di configurazione](https://code.visualstudio.com/docs/agents/reference/mcp-configuration)
 - [ChatGPT: server MCP personalizzati](https://platform.openai.com/docs/guides/developer-mode)
+- [Mistral: connettori MCP sul web](https://docs.mistral.ai/vibe/work/web/connectors/mcp-connectors)
+- [Mistral: configurazione e login dei connettori](https://docs.mistral.ai/studio/connectors/management)
 - [mcp-remote: progetto e opzioni](https://github.com/punkpeye/mcp-remote)
 - [mcp-remote: versione di riferimento](https://www.npmjs.com/package/mcp-remote/v/0.16.6)

@@ -27,8 +27,9 @@ a una piattaforma che richiede un intervento nelle impostazioni.
 | [INSTRUCTIONS.md](INSTRUCTIONS.md) | Guida completa per utenti e assistenti; include la sezione `RULES`. |
 | [PROMPT.md](PROMPT.md) | Unico breve testo da copiare nella conversazione. |
 | [oauth/casagest-mcp-remote.json](oauth/casagest-mcp-remote.json) | Identità OAuth pubblica del ponte locale `mcp-remote`, senza segreti. |
+| [oauth/casagest-mistral-web.json](oauth/casagest-mistral-web.json) | Identità OAuth pubblica predisposta da Insieme per il connettore CasaGest su Mistral web; flusso completo da collaudare. |
 
-Le istruzioni coprono OpenCode, Claude, Cursor, VS Code e ChatGPT. Preferisci
+Le istruzioni coprono OpenCode, Claude, Cursor, VS Code, ChatGPT e Mistral web. Preferisci
 HTTP remoto nativo; usa il ponte stdio soltanto quando necessario. La guida
 distingue gli esempi di configurazione dai collegamenti effettivamente collaudati.
 
