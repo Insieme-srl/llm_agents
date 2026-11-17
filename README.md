@@ -20,6 +20,11 @@ Il dominio senza `/mcp` è una pagina web, non l’endpoint del protocollo.
 Un prompt può guidare la configurazione, ma non aggiunge da solo un connettore
 a una piattaforma che richiede un intervento nelle impostazioni.
 
+**Mistral web:** segui la [procedura dedicata](INSTRUCTIONS.md#mistral-web).
+Il campo «ID client» usa il documento pubblico già predisposto per questa
+integrazione; non occorre cercare una voce CIMD nel menu o inventare credenziali.
+Il login completo va comunque verificato dal connettore Mistral.
+
 ## Contenuto
 
 | File | Scopo |

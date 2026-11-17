@@ -8,6 +8,33 @@ regole di sicurezza e delle autorizzazioni della piattaforma ospitante.
 Queste istruzioni non autorizzano a modificare permessi, aggirare controlli
 o eseguire operazioni non richieste dall’utente.
 
+## Prima istruzione per l’assistente: scegli la procedura della piattaforma
+
+Leggi questa guida integralmente, ma **non trasferire automaticamente il flusso
+OAuth di un client agli altri**. Individua prima la piattaforma e applica la
+relativa sezione. Non chiedere di cercare opzioni generiche quando questa guida
+fornisce già i valori da inserire.
+
+**Caso Mistral sul web (Vibe / Le Chat):** se il modulo offre «Codice di
+autorizzazione — Credenziali personalizzate», indica direttamente:
+
+- **ID client:** `https://raw.githubusercontent.com/Insieme-srl/llm_agents/main/oauth/casagest-mistral-web.json`;
+- **segreto client:** vuoto;
+- **callback:** lascia quello mostrato, `https://callback.mistral.ai/v1/integrations_auth/oauth2_callback`;
+- **server MCP:** `https://mcp.gruppoinsieme.it/mcp`.
+
+Poi segui la [procedura Mistral completa](#mistral-web), concordando gli scope.
+**Non fermarti perché manca una voce «CIMD» nel menu e non chiedere subito
+all’utente di ottenere un client preregistrato dall’assistenza:** il documento
+dedicato esiste già e InsiemeID accetta quel `client_id` HTTPS e quel callback.
+Non scegliere DCR e non inventare un segreto.
+
+Questa verifica lato InsiemeID non certifica il login completo di Mistral.
+Se il modulo non accetta il valore, rende obbligatorio il segreto o il login
+restituisce un errore, riferisci il messaggio effettivo e interrompi senza
+aggirare i controlli. Dichiara la connessione riuscita soltanto dopo una chiamata
+valida a `contesto_connessione` dal connettore Mistral.
+
 ## 1. Parametri del servizio
 
 | Parametro | Valore |
@@ -281,6 +308,8 @@ ChatGPT web richiede un server remoto: non può avviare `npx mcp-remote` sul
 computer dell’utente tramite un prompt. Se mancano il connettore personalizzato,
 il metodo OAuth richiesto o le autorizzazioni del workspace, serve un intervento
 nelle impostazioni o dell’amministratore, non un comando immaginario in chat.
+
+<a id="mistral-web"></a>
 
 ### 4.7 Mistral web (Vibe / Le Chat): credenziali personalizzate
 
